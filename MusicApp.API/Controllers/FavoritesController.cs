@@ -36,6 +36,7 @@ namespace MusicApp.API.Controllers
                     Title = f.Song.Title,
                     ArtistId = f.Song.ArtistId,
                     ArtistName = f.Song.Artist.ArtistName,
+                    Genre = f.Song.Genre,
                     FileUrl = f.Song.FileUrl,
                     CoverImage = f.Song.CoverImage,
                     Duration = f.Song.Duration,

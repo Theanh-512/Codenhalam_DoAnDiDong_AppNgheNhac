@@ -13,6 +13,7 @@ namespace MusicApp.API.Models
         public string FileUrl { get; set; } = null!;
         public string? CoverImage { get; set; }
         public int Duration { get; set; } // In seconds
+        public string Genre { get; set; } = "General";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();

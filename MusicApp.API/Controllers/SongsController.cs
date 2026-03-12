@@ -22,17 +22,29 @@ namespace MusicApp.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSongs()
+        public async Task<IActionResult> GetSongs([FromQuery] string? search = null, [FromQuery] string? genre = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var songs = await _context.Songs
-                .Include(s => s.Artist)
+            var query = _context.Songs.Include(s => s.Artist).AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s => s.Title.Contains(search) || s.Artist.ArtistName.Contains(search));
+            }
+
+            if (!string.IsNullOrEmpty(genre))
+            {
+                query = query.Where(s => s.Genre == genre);
+            }
+
+            var songs = await query
                 .Select(s => new SongDto
                 {
                     Id = s.Id,
                     Title = s.Title,
                     ArtistId = s.ArtistId,
                     ArtistName = s.Artist.ArtistName,
+                    Genre = s.Genre,
                     FileUrl = s.FileUrl,
                     CoverImage = s.CoverImage,
                     Duration = s.Duration,
@@ -107,6 +119,7 @@ namespace MusicApp.API.Controllers
                 FileUrl = $"/uploads/music/{musicFileName}",
                 CoverImage = coverUrl,
                 Duration = 0, // In a real app, you'd calculate this from the file
+                Genre = model.Genre,
                 CreatedAt = DateTime.UtcNow
             };
 

@@ -12,6 +12,7 @@ namespace MusicApp.API.DTOs
         public string FileUrl { get; set; } = null!;
         public string? CoverImage { get; set; }
         public int Duration { get; set; }
+        public string Genre { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public bool IsFavorite { get; set; }
     }
@@ -23,5 +24,6 @@ namespace MusicApp.API.DTOs
         [Required]
         public IFormFile MusicFile { get; set; } = null!;
         public IFormFile? CoverImage { get; set; }
+        public string Genre { get; set; } = "General";
     }
 }
