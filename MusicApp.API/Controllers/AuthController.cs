@@ -69,7 +69,8 @@ namespace MusicApp.API.Controllers
                     IsSuccess = true,
                     Token = token,
                     Username = user.UserName,
-                    Role = user.Role
+                    Role = user.Role,
+                    Email = user.Email
                 });
             }
 
