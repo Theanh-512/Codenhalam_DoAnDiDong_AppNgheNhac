@@ -1,53 +1,80 @@
-# 🎶 Music Streaming App - Project Overview
+# 🎵 Music App - Implementation Plan & Progress Report
+# 🎵 Ứng dụng Nghe nhạc - Kế hoạch Thực hiện & Báo cáo Tiến độ
 
-Welcome to the comprehensive music streaming application project. This repository contains both the **Backend (ASP.NET Core)** and the **Mobile Client (Flutter)**.
-
----
-
-## 🇻🇳 TIẾNG VIỆT: TỔNG KẾT DỰ ÁN (PROJECT SUMMARY)
-
-### 1. 🖥️ Backend (ASP.NET Core API - Thư mục `backend`)
-- **Cấu trúc dữ liệu:** Hoàn thiện Database Schema với các thực thể **User (Identity)**, **Artist**, **Song** và **Favorite**.
-- **Quản lý nhạc:** API cho phép lấy danh sách bài hát, hỗ trợ **Tìm kiếm (Search)** và **Lọc theo thể loại (Genre)**.
-- **Xác thực và phân quyền:** Hệ thống Đăng nhập/Đăng ký sử dụng **JWT (JSON Web Token)**. Phân chia vai trò rõ ràng giữa **Người nghe (User)** và **Nghệ sĩ (Artist)**.
-- **Streaming & Static Files:** Server cấu hình phục vụ tệp âm nhạc và hình ảnh trực tiếp qua URL.
-- **Dữ liệu mẫu:** Tích hợp bộ Seed dữ liệu ban đầu để kiểm tra ứng dụng ngay lập tức.
-
-### 2. 📱 Flutter App (Mobile)
-- **Hệ thống Audio:** Phát nhạc trực tuyến (Streaming) qua Internet với đầy đủ tính năng: Trình phát nhạc toàn màn hình, Thanh nhạc thu nhỏ (Mini-Player), thanh tiến trình (Seek bar), Trộn bài (Shuffle) và Lặp lại (Repeat).
-- **Giao diện Premium (Spotify UI):** Thiết kế rực rỡ với hiệu ứng Glassmorphism và màu sắc theo chủ đề bài hát.
-- **Tính năng tìm kiếm:** Chức năng tìm kiếm bài hát theo thời gian thực kết nối trực tiếp với backend.
-- **Cá nhân hóa:** Trang Thư viện và Trang Cá nhân được thiết kế để quản lý tài khoản và danh sách phát cá nhân.
+This document outlines the architecture, features, and current status of the Spotify-like music application.
+Tài liệu này trình bày kiến trúc, tính năng và trạng thái hiện tại của ứng dụng nghe nhạc phong cách Spotify.
 
 ---
 
-## 🇺🇸 ENGLISH: PROJECT ACHIEVEMENTS
+## 🏗️ 1. System Architecture / Kiến trúc Hệ thống
 
-### 1. 🖥️ Backend (ASP.NET Core API - `backend` folder)
-- **Core Architecture:** Implemented a robust Database Schema including **Users**, **Artists**, **Songs**, and **Favorites**.
-- **Music Management:** Built APIs for song retrieval with support for **Search** and **Category/Genre Filtering**.
-- **Authentication:** Integrated **JWT Authentication** with support for **Standard Users** and **Artists**.
-- **Static Content Hosting:** Enabled static file serving for music files (`.mp3`) and cover images.
-- **Data Seeding:** Automated initial data setup for immediate testing.
+### English
+- **Client**: Flutter Mobile App (iOS & Android).
+- **Backend**: ASP.NET Core Web API using Entity Framework Core.
+- **Database**: Microsoft SQL Server for structured data (Users, Songs, Artists, Favorites).
+- **Storage**: Local server storage (`wwwroot/uploads`) for MP3 files and images.
 
-### 2. 📱 Flutter App (Mobile Client)
-- **Audio Engine:** Developed a comprehensive `AudioProvider` supporting remote streaming, real-time progress bars, and playback modes (Shuffle/Repeat).
-- **Aesthetic UI (Spotify-like):** Crafted a modern, premium user interface with Glassmorphism and vibrant gradients.
-- **Search & Discovery:** Implemented a functional search bar and genre-based category exploration.
-- **Mini-Player:** Added a persistent mini-player for seamless navigation across the app.
-- **Full Player Screen:** Designed a rich playback screen with large album art and high-quality controls.
+### Tiếng Việt
+- **Client**: Ứng dụng di động Flutter (iOS & Android).
+- **Backend**: ASP.NET Core Web API sử dụng Entity Framework Core.
+- **Cơ sở dữ liệu**: Microsoft SQL Server lưu trữ dữ liệu có cấu trúc (Người dùng, Bài hát, Nghệ sĩ, Yêu thích).
+- **Lưu trữ**: Lưu trữ cục bộ trên server (`wwwroot/uploads`) cho các tệp MP3 và hình ảnh.
 
 ---
 
-## 🛠️ Technology Stack
-- **Backend:** ASP.NET Core 8.0, Entity Framework Core, SQL Server, Identity.
-- **Frontend:** Flutter, Provider (State Management), `just_audio` (Audio Engine), Material 3.
+## 🗄️ 2. Database Design / Thiết kế Cơ sở Dữ liệu
 
-## 🚀 Current Status
-- ✅ **Playback:** Working (Internet Streaming)
-- ✅ **Search:** Functional
-- ✅ **Auth:** Fully Implemented (Login/Register/Role-based)
-- ✅ **UI:** Complete for Home, Search, Library, and Profile.
+The database supports users with roles, artist profiles, song metadata with genres, and personal favorites.
+Cơ sở dữ liệu hỗ trợ người dùng với các vai trò, hồ sơ nghệ sĩ, siêu dữ liệu bài hát với thể loại và danh sách yêu thích cá nhân.
+
+- **Users**: Identity management (Username, Email, Role: User/Artist).
+- **Artists**: Extended profile for creators (ArtistName, Avatar).
+- **Songs**: Title, ArtistId, FileUrl, CoverImage, Duration, **Genre**.
+- **Favorites**: Junction table for user-song likes.
 
 ---
-*Last updated: March 12, 2026*
+
+## ⚙️ 3. Backend API Features / Tính năng Backend
+
+### Features / Tính năng:
+- **JWT Authentication**: Secure login and registration. / Xác thực JWT: Đăng nhập và đăng ký bảo mật.
+- **Song Management**: Fetch songs with **Search** and **Genre Filtering**. / Quản lý bài hát: Lấy danh sách với **Tìm kiếm** và **Lọc theo thể loại**.
+- **Static File Serving**: Streaming music and images directly from the server. / Cấu hình Static Files: Phát nhạc và hiển thị ảnh trực tiếp từ server.
+- **Data Seeding**: Initial artist and song data (e.g., Sơn Tùng M-TP). / Khởi tạo dữ liệu: Dữ liệu nghệ sĩ và bài hát ban đầu.
+
+---
+
+## 📱 4. Flutter Application Features / Tính năng Ứng dụng Flutter
+
+### Highlights / Điểm nổi bật:
+- **Audio Engine (`just_audio`)**: Full network streaming support with progress tracking. / Công cụ âm thanh: Hỗ trợ phát nhạc qua mạng với thanh tiến trình.
+- **Mini Player**: Persistent control bar at the bottom. / Mini Player: Thanh điều khiển cố định phía dưới ứng dụng.
+- **Full Player Screen**: Beautiful interface with Shuffle, Repeat, and Seek controls. / Trình phát nhạc toàn màn hình: Giao diện đẹp mắt với nút Trộn bài, Lặp lại và tua nhạc.
+- **Modern UI**: Spotify Premium aesthetics with Glassmorphism and Gradients. / Giao diện hiện đại: Thẩm mỹ Spotify Premium với hiệu ứng kính và Gradient.
+- **Personalized Library**: Management of liked songs and user profile. / Thư viện cá nhân: Quản lý bài hát đã thích và thông tin cá nhân.
+
+---
+
+## 📁 5. Folder Structure / Cấu trúc Thư mục
+
+- **`/backend`**: ASP.NET Core Web API (formerly MusicApp.API).
+- **`/flutter`**: Flutter Mobile Application (formerly music_app - *Rename in progress*).
+
+---
+
+## 🚀 6. Current Implementation Status / Trạng thái Thực hiện Hiện tại
+
+### Completed / Đã hoàn thành:
+- ✅ **Backend Core**: API models, database migrations, and JWT Auth. / Lõi Backend: Models, migrations và xác thực JWT.
+- ✅ **Music Streaming**: Server-side file hosting and static serving. / Phát nhạc: Lưu trữ và cấu hình phát tệp từ server.
+- ✅ **Core UI**: Home, Search, Library, and Profile tabs. / Giao diện chính: Trang chủ, Tìm kiếm, Thư viện và Cá nhân.
+- ✅ **Playback System**: MiniPlayer and Full Player implementation. / Hệ thống phát nhạc: Hoàn thiện MiniPlayer và Trình phát toàn màn hình.
+- ✅ **Search & Filter**: Functional multi-category searching. / Tìm kiếm & Lọc: Tìm kiếm đa mục mục hoạt động tốt.
+
+### Up Next / Tiếp theo:
+- 🏗️ **Artist Dashboard**: Song upload and management UI. / Bảng điều khiển nghệ sĩ: Giao diện tải lên và quản lý nhạc.
+- 🏗️ **Favorites Logic**: Fully connect the 'Like' button to the database. / Logic Yêu thích: Kết nối hoàn toàn nút 'Like' với cơ sở dữ liệu.
+- 🏗️ **Playlists**: Create and manage custom folders for songs. / Danh sách phát: Tạo và quản lý thư mục nhạc tùy chỉnh.
+
+---
+*Created by Antigravity AI Assistant*
