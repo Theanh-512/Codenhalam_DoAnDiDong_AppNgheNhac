@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/song_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/audio_provider.dart';
+import '../../models/song_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,6 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final String _baseUrl = 'https://10.0.2.2:7240';
+
   @override
   void initState() {
     super.initState();
@@ -19,134 +23,167 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  String _getAbsoluteUrl(String? relativeUrl) {
+    if (relativeUrl == null || relativeUrl.isEmpty)
+      return 'https://via.placeholder.com/150';
+    if (relativeUrl.startsWith('http')) return relativeUrl;
+    return '$_baseUrl${relativeUrl.startsWith('/') ? '' : '/'}$relativeUrl';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Consumer<SongProvider>(
-          builder: (context, songProvider, child) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top Bar
-                  Row(
-                    children: [
-                      Consumer<AuthProvider>(
-                        builder: (context, auth, _) => GestureDetector(
-                          onTap: () {
-                            // In a real app, this might open account settings or switch tab
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: Colors.green,
-                            radius: 15,
-                            child: Text(
-                              auth.isAuthenticated
-                                  ? auth.user!.username
-                                        .substring(0, 1)
-                                        .toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, _) => GestureDetector(
+                        onTap: () {
+                          // In a real app, this might open account settings or switch tab
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.green,
+                          radius: 15,
+                          child: Text(
+                            auth.isAuthenticated
+                                ? auth.user!.username
+                                      .substring(0, 1)
+                                      .toUpperCase()
+                                : '?',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      _buildChip('Tất cả', isSelected: true),
-                      _buildChip('Âm nhạc'),
-                      _buildChip('Podcasts'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Recent Grid
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    childAspectRatio: 3,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    children: [
-                      _buildRecentItem(
-                        'tiếng ồn trắng - học bài.',
-                        'https://via.placeholder.com/150',
-                      ),
-                      _buildRecentItem(
-                        'Thiên Hạ Nghe Gì',
-                        'https://via.placeholder.com/151',
-                      ),
-                      _buildRecentItem(
-                        'marzuz',
-                        'https://via.placeholder.com/152',
-                      ),
-                      if (songProvider.songs.isNotEmpty)
-                        _buildRecentItem(
-                          songProvider.songs[0].title,
-                          songProvider.songs[0].coverImage ?? '',
-                        ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Nội dung bạn hay nghe gần đây',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (songProvider.isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(color: Colors.green),
-                    )
-                  else if (songProvider.songs.isEmpty)
-                    const Text(
-                      'Chưa có bài hát nào. Hãy upload nhạc!',
-                      style: TextStyle(color: Colors.white70),
-                    )
-                  else
-                    ...songProvider.songs.map(
-                      (song) => _buildListSong(
-                        song.title,
-                        song.artistName,
-                        song.coverImage ?? 'https://via.placeholder.com/160',
-                      ),
-                    ),
-
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Bảng xếp hạng',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChartItem('Top 50', 'VIETNAM', Colors.deepOrange),
-                        _buildChartItem('HOT HITS', 'VIETNAM', Colors.pink),
-                        _buildChartItem('Global', 'TOP 50', Colors.green),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 100), // Space for MiniPlayer
-                ],
+                    const SizedBox(width: 8),
+                    _buildChip('Tất cả', isSelected: true),
+                    _buildChip('Âm nhạc'),
+                    _buildChip('Podcasts'),
+                  ],
+                ),
               ),
-            );
-          },
+
+              const SizedBox(height: 24),
+              // Recent Grid
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Consumer<SongProvider>(
+                  builder: (context, songProvider, child) {
+                    if (songProvider.isLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.green),
+                      );
+                    }
+                    if (songProvider.songs.isEmpty) {
+                      return const Text(
+                        'Chưa có bài hát nào',
+                        style: TextStyle(color: Colors.white70),
+                      );
+                    }
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 3.2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                      itemCount: (songProvider.songs.length > 6)
+                          ? 6
+                          : songProvider.songs.length,
+                      itemBuilder: (context, index) {
+                        return _buildRecentItem(songProvider.songs[index]);
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Nội dung bạn hay nghe gần đây',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 200,
+                child: Consumer<SongProvider>(
+                  builder: (context, songProvider, child) {
+                    if (songProvider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.only(left: 16),
+                      itemCount: songProvider.songs.length,
+                      itemBuilder: (context, index) {
+                        return _buildListSong(songProvider.songs[index]);
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Bảng xếp hạng hàng đầu của bạn',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(left: 16),
+                child: Row(
+                  children: [
+                    _buildChartItem(
+                      'Top 50 - Việt Nam',
+                      Colors.pink,
+                      Colors.purple,
+                    ),
+                    _buildChartItem(
+                      'Top 50 - Toàn cầu',
+                      Colors.blue,
+                      Colors.green,
+                    ),
+                    _buildChartItem(
+                      'Video âm nhạc hàng đầu',
+                      Colors.orange,
+                      Colors.red,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
     );
@@ -168,124 +205,131 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecentItem(String title, String imageUrl) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              bottomLeft: Radius.circular(4),
-            ),
-            child: Image.network(
-              imageUrl,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+  Widget _buildRecentItem(SongModel song) {
+    return GestureDetector(
+      onTap: () => context.read<AudioProvider>().playSong(song),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4),
+                bottomLeft: Radius.circular(4),
+              ),
+              child: Image.network(
+                _getAbsoluteUrl(song.coverImage),
                 width: 56,
                 height: 56,
-                color: Colors.grey[800],
-                child: const Icon(Icons.music_note, color: Colors.white24),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 56,
+                  height: 56,
+                  color: Colors.white10,
+                  child: const Icon(Icons.music_note, color: Colors.white24),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              title,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                song.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListSong(SongModel song) {
+    return GestureDetector(
+      onTap: () => context.read<AudioProvider>().playSong(song),
+      child: Container(
+        width: 140,
+        margin: const EdgeInsets.only(right: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                _getAbsoluteUrl(song.coverImage),
+                width: 140,
+                height: 140,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 140,
+                  height: 140,
+                  color: Colors.white10,
+                  child: const Icon(
+                    Icons.music_note,
+                    color: Colors.white24,
+                    size: 40,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              song.title,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            Text(
+              song.artistName,
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildListSong(String title, String artist, String imageUrl) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Image.network(
-              imageUrl,
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: Colors.grey[800],
-                child: const Icon(Icons.music_note, color: Colors.white24),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  artist,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.more_horiz, color: Colors.white70),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChartItem(String title, String sub, Color color) {
+  Widget _buildChartItem(String title, Color color1, Color color2) {
     return Container(
-      width: 150,
-      height: 150,
+      width: 140,
+      height: 140,
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
-        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [color1, color2],
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.music_note, color: Colors.white24, size: 24),
+          const Icon(Icons.trending_up, color: Colors.white, size: 24),
           const Spacer(),
           Text(
             title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(sub, style: const TextStyle(color: Colors.white, fontSize: 12)),
         ],
       ),
     );

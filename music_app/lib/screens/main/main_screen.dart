@@ -29,16 +29,11 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          IndexedStack(index: _selectedIndex, children: _screens),
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [MiniPlayer()],
-            ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 72),
+            child: IndexedStack(index: _selectedIndex, children: _screens),
           ),
+          const Positioned(left: 0, right: 0, bottom: 0, child: MiniPlayer()),
         ],
       ),
       bottomNavigationBar: Theme(

@@ -50,78 +50,99 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tạo tài khoản',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 32),
-            _buildTextField(
-              _usernameController,
-              'Tên đăng nhập',
-              Icons.person_outline,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(_emailController, 'Email', Icons.email_outlined),
-            const SizedBox(height: 16),
-            _buildTextField(
-              _fullNameController,
-              'Họ và tên',
-              Icons.badge_outlined,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              _passwordController,
-              'Mật khẩu',
-              Icons.lock_outline,
-              isPassword: true,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Bạn là:',
-              style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-            Row(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF2E2E2E), Colors.black],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRoleRadio('Người nghe', 'User'),
-                const SizedBox(width: 24),
-                _buildRoleRadio('Nghệ sĩ', 'Artist'),
-              ],
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _register,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.centerLeft,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Tạo tài khoản',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.black)
-                    : const Text(
-                        'Đăng ký',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                const SizedBox(height: 32),
+                _buildTextField(
+                  _usernameController,
+                  'Tên đăng nhập',
+                  Icons.person_outline,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  _emailController,
+                  'Email',
+                  Icons.email_outlined,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  _fullNameController,
+                  'Họ và tên',
+                  Icons.badge_outlined,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  _passwordController,
+                  'Mật khẩu',
+                  Icons.lock_outline,
+                  isPassword: true,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Bạn là:',
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    _buildRoleRadio('Người nghe', 'User'),
+                    const SizedBox(width: 24),
+                    _buildRoleRadio('Nghệ sĩ', 'Artist'),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
                       ),
-              ),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.black)
+                        : const Text(
+                            'Đăng ký',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

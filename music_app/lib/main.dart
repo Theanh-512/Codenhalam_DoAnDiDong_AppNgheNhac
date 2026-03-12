@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/song_provider.dart';
 import 'providers/library_provider.dart';
+import 'providers/audio_provider.dart';
 import 'screens/main/main_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/login/register_screen.dart';
@@ -14,6 +15,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SongProvider()),
         ChangeNotifierProvider(create: (_) => LibraryProvider()),
+        ChangeNotifierProvider(create: (_) => AudioProvider()),
       ],
       child: const MyApp(),
     ),

@@ -1,0 +1,11 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+D:\Do An\DoAnDiDong_AppNgheNhac\Codenhalam_DoAnDiDong_AppNgheNhac\MusicApp.API\Data\AppDbContext.cs(19,49): error CS0246: The type or namespace name 'ModelCreatingBuilder' could not be found (are you missing a using directive or an assembly reference?) [D:\Do An\DoAnDiDong_AppNgheNhac\Codenhalam_DoAnDiDong_AppNgheNhac\MusicApp.API\MusicApp.API.csproj]
+
+Build FAILED.
+
+D:\Do An\DoAnDiDong_AppNgheNhac\Codenhalam_DoAnDiDong_AppNgheNhac\MusicApp.API\Data\AppDbContext.cs(19,49): error CS0246: The type or namespace name 'ModelCreatingBuilder' could not be found (are you missing a using directive or an assembly reference?) [D:\Do An\DoAnDiDong_AppNgheNhac\Codenhalam_DoAnDiDong_AppNgheNhac\MusicApp.API\MusicApp.API.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.52

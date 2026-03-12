@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/song_provider.dart';
-import '../../models/song_model.dart';
+import '../../providers/audio_provider.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -12,8 +12,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String? _selectedGenre;
-  bool _isSearching = false;
+  final String _baseUrl = 'https://10.0.2.2:7240';
 
   @override
   void dispose() {
@@ -21,21 +20,19 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _onSearch(String query) {
-    setState(() {
-      _isSearching = query.isNotEmpty;
-      _selectedGenre = null;
-    });
-    context.read<SongProvider>().fetchSongs(search: query);
+  void _onSearch(String value) {
+    context.read<SongProvider>().fetchSongs(search: value);
   }
 
   void _onGenreSelect(String genre) {
-    setState(() {
-      _selectedGenre = genre;
-      _isSearching = false;
-      _searchController.clear();
-    });
     context.read<SongProvider>().fetchSongs(genre: genre);
+  }
+
+  String _getAbsoluteUrl(String? relativeUrl) {
+    if (relativeUrl == null || relativeUrl.isEmpty)
+      return 'https://via.placeholder.com/60';
+    if (relativeUrl.startsWith('http')) return relativeUrl;
+    return '$_baseUrl${relativeUrl.startsWith('/') ? '' : '/'}$relativeUrl';
   }
 
   @override
@@ -43,274 +40,217 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          if (_selectedGenre != null || _isSearching)
-                            IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedGenre = null;
-                                  _isSearching = false;
-                                  _searchController.clear();
-                                });
-                                context.read<SongProvider>().fetchSongs();
-                              },
-                            ),
-                          const Text(
-                            'Tìm kiếm',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Icon(
-                        Icons.camera_alt_outlined,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _searchController,
-                    onChanged: _onSearch,
-                    style: const TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Colors.black87,
-                      ),
-                      hintText: 'Bạn muốn nghe gì?',
-                      hintStyle: const TextStyle(color: Colors.black54),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(4),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Consumer<SongProvider>(
-                builder: (context, songProvider, child) {
-                  if (_isSearching || _selectedGenre != null) {
-                    return _buildSearchResults(songProvider);
-                  }
-                  return _buildBrowseView();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchResults(SongProvider provider) {
-    if (provider.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.green),
-      );
-    }
-    if (provider.songs.isEmpty) {
-      return const Center(
-        child: Text(
-          'Không tìm thấy kết quả nào',
-          style: TextStyle(color: Colors.white70),
-        ),
-      );
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: provider.songs.length,
-      itemBuilder: (context, index) {
-        final song = provider.songs[index];
-        return _buildSongTile(song);
-      },
-    );
-  }
-
-  Widget _buildBrowseView() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Khám phá nội dung mới mẻ',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildExploreCard('#v-pop', 'V-Pop', Colors.pink),
-              _buildExploreCard('#pop', 'Pop', Colors.blue),
-              _buildExploreCard('#indie', 'Indie', Colors.green),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Duyệt tìm tất cả',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            childAspectRatio: 1.6,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            children: [
-              _buildGenreCard(
-                'Âm nhạc',
-                'Music',
-                Colors.pink,
-                'https://via.placeholder.com/100',
-              ),
-              _buildGenreCard(
-                'Podcasts',
-                'Podcasts',
-                Colors.teal,
-                'https://via.placeholder.com/101',
-              ),
-              _buildGenreCard(
-                'V-Pop',
-                'V-Pop',
-                Colors.orange,
-                'https://via.placeholder.com/102',
-              ),
-              _buildGenreCard(
-                'Pop',
-                'Pop',
-                Colors.blue,
-                'https://via.placeholder.com/103',
-              ),
-            ],
-          ),
-          const SizedBox(height: 100),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSongTile(SongModel song) {
-    return ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: Image.network(
-          song.coverImage ?? 'https://via.placeholder.com/150',
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            color: Colors.grey[800],
-            child: const Icon(Icons.music_note),
-          ),
-        ),
-      ),
-      title: Text(song.title, style: const TextStyle(color: Colors.white)),
-      subtitle: Text(
-        '${song.artistName} • ${song.genre}',
-        style: const TextStyle(color: Colors.white70),
-      ),
-      trailing: const Icon(Icons.more_horiz, color: Colors.white70),
-    );
-  }
-
-  Widget _buildExploreCard(String label, String genre, Color color) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onGenreSelect(genre),
-        child: Container(
-          height: 140,
-          margin: const EdgeInsets.only(right: 8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGenreCard(
-    String title,
-    String genre,
-    Color color,
-    String imageUrl,
-  ) {
-    return GestureDetector(
-      onTap: () => _onGenreSelect(genre),
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            Positioned(
-              right: -15,
-              bottom: -5,
-              child: Transform.rotate(
-                angle: 0.5,
-                child: Image.network(
-                  imageUrl,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                title,
-                style: const TextStyle(
+              const SizedBox(height: 16),
+              const Text(
+                'Tìm kiếm',
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextField(
+                controller: _searchController,
+                onChanged: _onSearch,
+                style: const TextStyle(color: Colors.black),
+                decoration: InputDecoration(
+                  hintText: 'Bạn muốn nghe gì?',
+                  hintStyle: const TextStyle(color: Colors.black54),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: Consumer<SongProvider>(
+                  builder: (context, songProvider, child) {
+                    if (songProvider.isLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.green),
+                      );
+                    }
+
+                    if (_searchController.text.isNotEmpty ||
+                        songProvider.songs.isNotEmpty) {
+                      return ListView.builder(
+                        itemCount: songProvider.songs.length,
+                        itemBuilder: (context, index) {
+                          final song = songProvider.songs[index];
+                          return ListTile(
+                            onTap: () =>
+                                context.read<AudioProvider>().playSong(song),
+                            contentPadding: EdgeInsets.zero,
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Image.network(
+                                _getAbsoluteUrl(song.coverImage),
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  width: 50,
+                                  height: 50,
+                                  color: Colors.white10,
+                                  child: const Icon(
+                                    Icons.music_note,
+                                    color: Colors.white24,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              song.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              song.artistName,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            trailing: const Icon(
+                              Icons.more_vert,
+                              color: Colors.white70,
+                            ),
+                          );
+                        },
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Khám phá các thể loại',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.6,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            children: [
+                              _buildExploreCard(
+                                'Âm nhạc',
+                                Colors.pink,
+                                'Music',
+                              ),
+                              _buildExploreCard(
+                                'Podcasts',
+                                Colors.green[800]!,
+                                'Podcasts',
+                              ),
+                              _buildExploreCard(
+                                'Sự kiện trực tiếp',
+                                Colors.purple,
+                                'Events',
+                              ),
+                              _buildExploreCard(
+                                'Dành cho bạn',
+                                Colors.blue,
+                                'MadeForYou',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Duyệt tìm tất cả',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.6,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            children: [
+                              _buildGenreCard('Pop', Colors.orange, 'Pop'),
+                              _buildGenreCard('V-Pop', Colors.red, 'V-Pop'),
+                              _buildGenreCard('Indie', Colors.teal, 'Indie'),
+                              _buildGenreCard('Rock', Colors.indigo, 'Rock'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExploreCard(String title, Color color, String genre) {
+    return GestureDetector(
+      onTap: () {
+        _searchController.text = title;
+        _onGenreSelect(genre);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenreCard(String title, Color color, String genre) {
+    return GestureDetector(
+      onTap: () {
+        _searchController.text = title;
+        _onGenreSelect(genre);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
       ),
     );

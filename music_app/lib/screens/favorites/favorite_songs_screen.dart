@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/library_provider.dart';
+import '../../providers/audio_provider.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -11,6 +12,8 @@ class LibraryScreen extends StatefulWidget {
 }
 
 class _LibraryScreenState extends State<LibraryScreen> {
+  final String _baseUrl = 'https://10.0.2.2:7240';
+
   @override
   void initState() {
     super.initState();
@@ -23,6 +26,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
         context.read<LibraryProvider>().fetchFavorites();
       }
     });
+  }
+
+  String _getAbsoluteUrl(String? relativeUrl) {
+    if (relativeUrl == null || relativeUrl.isEmpty)
+      return 'https://via.placeholder.com/64';
+    if (relativeUrl.startsWith('http')) return relativeUrl;
+    return '$_baseUrl${relativeUrl.startsWith('/') ? '' : '/'}$relativeUrl';
   }
 
   @override
@@ -159,7 +169,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           (song) => _buildLibraryItem(
                             song.title,
                             'Bài hát • ${song.artistName}',
-                            song.coverImage ?? '',
+                            _getAbsoluteUrl(song.coverImage),
+                            onTap: () =>
+                                context.read<AudioProvider>().playSong(song),
                           ),
                         ),
                       _buildLibraryItem(
@@ -168,8 +180,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         'https://via.placeholder.com/150',
                       ),
                       const SizedBox(height: 16),
-                      _buildAddItem(Icons.add, 'Thêm nghệ sĩ'),
-                      _buildAddItem(Icons.add, 'Thêm podcast'),
+                      _buildAddSectionItem(Icons.add, 'Thêm nghệ sĩ'),
+                      _buildAddSectionItem(Icons.add, 'Thêm podcast'),
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -197,58 +209,74 @@ class _LibraryScreenState extends State<LibraryScreen> {
     String subtitle,
     String imageUrl, {
     bool isLiked = false,
+    VoidCallback? onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              gradient: isLiked
-                  ? const LinearGradient(
-                      colors: [Colors.deepPurple, Colors.blueAccent],
-                    )
-                  : null,
-              color: imageUrl.isEmpty ? Colors.grey[800] : null,
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                gradient: isLiked
+                    ? const LinearGradient(
+                        colors: [Colors.deepPurple, Colors.blueAccent],
+                      )
+                    : null,
+                color: imageUrl.isEmpty ? Colors.grey[800] : null,
+              ),
+              child: isLiked
+                  ? const Icon(Icons.favorite, color: Colors.white, size: 30)
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: Colors.white10,
+                          child: const Icon(
+                            Icons.music_note,
+                            color: Colors.white24,
+                          ),
+                        ),
+                      ),
+                    ),
             ),
-            child: isLiked
-                ? const Icon(Icons.favorite, color: Colors.white, size: 30)
-                : (imageUrl.isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: Image.network(imageUrl, fit: BoxFit.cover),
-                        )
-                      : const Icon(Icons.music_note, color: Colors.white24)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildAddItem(IconData icon, String label) {
+  Widget _buildAddSectionItem(IconData icon, String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
