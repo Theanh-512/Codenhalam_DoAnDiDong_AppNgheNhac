@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/library_provider.dart';
 import '../../providers/audio_provider.dart';
+import '../../providers/playlist_provider.dart';
+import '../../models/playlist_model.dart';
+import '../playlist/playlist_detail_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -24,6 +27,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.read<AuthProvider>().isAuthenticated) {
         context.read<LibraryProvider>().fetchFavorites();
+        context.read<PlaylistProvider>().fetchPlaylists();
       }
     });
   }
@@ -164,20 +168,31 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         '',
                         isLiked: true,
                       ),
-                      if (library.favoriteSongs.isNotEmpty)
-                        ...library.favoriteSongs.map(
-                          (song) => _buildLibraryItem(
-                            song.title,
-                            'Bài hát • ${song.artistName}',
-                            _getAbsoluteUrl(song.coverImage),
-                            onTap: () =>
-                                context.read<AudioProvider>().playSong(song),
-                          ),
-                        ),
-                      _buildLibraryItem(
-                        'Playlist của ${auth.user?.username}',
-                        'Danh sách phát • ${auth.user?.username}',
-                        'https://via.placeholder.com/150',
+                      Consumer<PlaylistProvider>(
+                        builder: (context, playlistProvider, _) {
+                          return Column(
+                            children: playlistProvider.playlists.map((
+                              playlist,
+                            ) {
+                              return _buildLibraryItem(
+                                playlist.name,
+                                'Danh sách phát • ${playlist.songCount} bài hát',
+                                '', // Or a default playlist icon
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          PlaylistDetailScreen(
+                                            playlist: playlist,
+                                          ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                       _buildAddSectionItem(Icons.add, 'Thêm nghệ sĩ'),

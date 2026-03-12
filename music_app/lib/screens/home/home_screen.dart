@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../song_list/song_list_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/song_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -13,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final String _baseUrl = 'https://10.0.2.2:7240';
+  final String _baseUrl = 'http://10.0.2.2:5102';
 
   @override
   void initState() {
@@ -164,19 +165,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     _buildChartItem(
+                      context,
                       'Top 50 - Việt Nam',
                       Colors.pink,
                       Colors.purple,
+                      genre: 'V-Pop',
                     ),
                     _buildChartItem(
+                      context,
                       'Top 50 - Toàn cầu',
                       Colors.blue,
                       Colors.green,
+                      genre: 'Pop',
                     ),
                     _buildChartItem(
+                      context,
                       'Video âm nhạc hàng đầu',
                       Colors.orange,
                       Colors.red,
+                      genre: 'EDM',
                     ),
                   ],
                 ),
@@ -303,34 +310,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildChartItem(String title, Color color1, Color color2) {
-    return Container(
-      width: 140,
-      height: 140,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [color1, color2],
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.trending_up, color: Colors.white, size: 24),
-          const Spacer(),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+  Widget _buildChartItem(
+    BuildContext context,
+    String title,
+    Color color1,
+    Color color2, {
+    String? genre,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SongListScreen(title: title, genre: genre),
           ),
-        ],
+        );
+      },
+      child: Container(
+        width: 140,
+        height: 140,
+        margin: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color1, color2],
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.trending_up, color: Colors.white, size: 24),
+            const Spacer(),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

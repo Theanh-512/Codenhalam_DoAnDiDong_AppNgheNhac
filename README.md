@@ -12,13 +12,17 @@ Tài liệu này trình bày kiến trúc, tính năng và trạng thái hiện 
 - **Client**: Flutter Mobile App (iOS & Android).
 - **Backend**: ASP.NET Core Web API using Entity Framework Core.
 - **Database**: Microsoft SQL Server for structured data (Users, Songs, Artists, Favorites).
-- **Storage**: Local server storage (`wwwroot/uploads`) for MP3 files and images.
+- **Hybrid Storage**: 
+    - **Local**: Server storage (`wwwroot/uploads`) for legacy/testing.
+    - **Cloud**: **Firebase Storage** for high-performance audio and image hosting.
 
 ### Tiếng Việt
 - **Client**: Ứng dụng di động Flutter (iOS & Android).
 - **Backend**: ASP.NET Core Web API sử dụng Entity Framework Core.
 - **Cơ sở dữ liệu**: Microsoft SQL Server lưu trữ dữ liệu có cấu trúc (Người dùng, Bài hát, Nghệ sĩ, Yêu thích).
-- **Lưu trữ**: Lưu trữ cục bộ trên server (`wwwroot/uploads`) cho các tệp MP3 và hình ảnh.
+- **Lưu trữ Hỗn hợp (Hybrid)**: 
+    - **Cục bộ (Local)**: Thư mục `wwwroot/uploads` trên server cho việc test nhanh.
+    - **Đám mây (Cloud)**: **Firebase Storage** dùng để lưu trữ bài hát và ảnh bìa chất lượng cao, tốc độ nhanh.
 
 ---
 

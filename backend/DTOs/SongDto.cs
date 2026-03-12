@@ -26,4 +26,14 @@ namespace MusicApp.API.DTOs
         public IFormFile? CoverImage { get; set; }
         public string Genre { get; set; } = "General";
     }
+
+    public class CreateExternalSongDto
+    {
+        [Required]
+        public string Title { get; set; } = null!;
+        [Required]
+        public string FileUrl { get; set; } = null!;
+        public string? CoverImageUrl { get; set; }
+        public string Genre { get; set; } = "General";
+    }
 }

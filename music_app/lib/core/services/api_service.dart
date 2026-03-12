@@ -6,7 +6,7 @@ class ApiService {
     BaseOptions(
       // Change this to your server IP if testing on a physical device
       // 10.0.2.2 is the localhost for Android Emulator
-      baseUrl: 'https://10.0.2.2:7240/api',
+      baseUrl: 'http://10.0.2.2:5102/api',
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 3),
     ),
@@ -43,5 +43,28 @@ class ApiService {
 
   Future<String?> getToken() async {
     return await _storage.read(key: 'jwt');
+  }
+
+  Future<bool> uploadExternalSong({
+    required String title,
+    required String genre,
+    required String musicUrl,
+    String? coverUrl,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/songs/upload-external',
+        data: {
+          'title': title,
+          'genre': genre,
+          'fileUrl': musicUrl,
+          'coverImageUrl': coverUrl,
+        },
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error uploading external song metadata: $e');
+      return false;
+    }
   }
 }

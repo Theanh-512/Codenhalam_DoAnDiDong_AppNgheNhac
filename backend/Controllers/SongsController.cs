@@ -128,5 +128,31 @@ namespace MusicApp.API.Controllers
 
             return Ok(song);
         }
+
+        [Authorize(Roles = "Artist")]
+        [HttpPost("upload-external")]
+        public async Task<IActionResult> UploadExternalSong([FromBody] CreateExternalSongDto model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var artist = await _context.Artists.FirstOrDefaultAsync(a => a.UserId == userId);
+
+            if (artist == null) return Unauthorized("User is not registered as an artist.");
+
+            var song = new Song
+            {
+                Title = model.Title,
+                ArtistId = artist.Id,
+                FileUrl = model.FileUrl,
+                CoverImage = model.CoverImageUrl,
+                Duration = 0,
+                Genre = model.Genre,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Songs.Add(song);
+            await _context.SaveChangesAsync();
+
+            return Ok(song);
+        }
     }
 }
