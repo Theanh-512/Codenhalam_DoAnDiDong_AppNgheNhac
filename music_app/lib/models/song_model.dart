@@ -5,6 +5,7 @@ class SongModel {
   final String artistName;
   final String fileUrl;
   final String? coverImage;
+  final String genre;
   final int duration;
   final DateTime createdAt;
   bool isFavorite;
@@ -16,6 +17,7 @@ class SongModel {
     required this.artistName,
     required this.fileUrl,
     this.coverImage,
+    required this.genre,
     required this.duration,
     required this.createdAt,
     this.isFavorite = false,
@@ -29,6 +31,7 @@ class SongModel {
       artistName: json['artistName'],
       fileUrl: json['fileUrl'],
       coverImage: json['coverImage'],
+      genre: json['genre'] ?? 'General',
       duration: json['duration'],
       createdAt: DateTime.parse(json['createdAt']),
       isFavorite: json['isFavorite'] ?? false,
@@ -43,6 +46,7 @@ class SongModel {
       'artistName': artistName,
       'fileUrl': fileUrl,
       'coverImage': coverImage,
+      'genre': genre,
       'duration': duration,
       'createdAt': createdAt.toIso8601String(),
       'isFavorite': isFavorite,

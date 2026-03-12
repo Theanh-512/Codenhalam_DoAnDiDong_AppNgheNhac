@@ -1,115 +1,152 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/song_provider.dart';
+import '../../providers/auth_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SongProvider>().fetchSongs();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Bar
-              Row(
+        child: Consumer<SongProvider>(
+          builder: (context, songProvider, child) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.green,
-                    radius: 15,
-                    child: Text(
-                      'T',
-                      style: TextStyle(color: Colors.black, fontSize: 12),
+                  // Top Bar
+                  Row(
+                    children: [
+                      Consumer<AuthProvider>(
+                        builder: (context, auth, _) => GestureDetector(
+                          onTap: () {
+                            // In a real app, this might open account settings or switch tab
+                          },
+                          child: CircleAvatar(
+                            backgroundColor: Colors.green,
+                            radius: 15,
+                            child: Text(
+                              auth.isAuthenticated
+                                  ? auth.user!.username
+                                        .substring(0, 1)
+                                        .toUpperCase()
+                                  : '?',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildChip('Tất cả', isSelected: true),
+                      _buildChip('Âm nhạc'),
+                      _buildChip('Podcasts'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Recent Grid
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    childAspectRatio: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    children: [
+                      _buildRecentItem(
+                        'tiếng ồn trắng - học bài.',
+                        'https://via.placeholder.com/150',
+                      ),
+                      _buildRecentItem(
+                        'Thiên Hạ Nghe Gì',
+                        'https://via.placeholder.com/151',
+                      ),
+                      _buildRecentItem(
+                        'marzuz',
+                        'https://via.placeholder.com/152',
+                      ),
+                      if (songProvider.songs.isNotEmpty)
+                        _buildRecentItem(
+                          songProvider.songs[0].title,
+                          songProvider.songs[0].coverImage ?? '',
+                        ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Nội dung bạn hay nghe gần đây',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildChip('Tất cả', isSelected: true),
-                  _buildChip('Âm nhạc'),
-                  _buildChip('Podcasts'),
+                  const SizedBox(height: 16),
+
+                  if (songProvider.isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(color: Colors.green),
+                    )
+                  else if (songProvider.songs.isEmpty)
+                    const Text(
+                      'Chưa có bài hát nào. Hãy upload nhạc!',
+                      style: TextStyle(color: Colors.white70),
+                    )
+                  else
+                    ...songProvider.songs.map(
+                      (song) => _buildListSong(
+                        song.title,
+                        song.artistName,
+                        song.coverImage ?? 'https://via.placeholder.com/160',
+                      ),
+                    ),
+
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Bảng xếp hạng',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChartItem('Top 50', 'VIETNAM', Colors.deepOrange),
+                        _buildChartItem('HOT HITS', 'VIETNAM', Colors.pink),
+                        _buildChartItem('Global', 'TOP 50', Colors.green),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 100), // Space for MiniPlayer
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // Recent Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                childAspectRatio: 3,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                children: [
-                  _buildRecentItem(
-                    'tiếng ồn trắng - học bài.',
-                    'https://via.placeholder.com/150',
-                  ),
-                  _buildRecentItem(
-                    'Thiên Hạ Nghe Gì',
-                    'https://via.placeholder.com/151',
-                  ),
-                  _buildRecentItem('marzuz', 'https://via.placeholder.com/152'),
-                  _buildRecentItem(
-                    'Tuyển Tập Nhạc Tết Bùi Công Na...',
-                    'https://via.placeholder.com/153',
-                  ),
-                  _buildRecentItem(
-                    'Indie Việt Nam 2025',
-                    'https://via.placeholder.com/154',
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-              const Text(
-                'Nội dung bạn hay nghe gần đây',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildListSong(
-                'Ước Gì',
-                'Mỹ Tâm',
-                'https://via.placeholder.com/160',
-              ),
-              _buildListSong(
-                'Thanh Tân',
-                'VƯƠNG BÌNH',
-                'https://via.placeholder.com/161',
-              ),
-              _buildListSong(
-                'Chờ Ngày Mưa Tan Cover - Rock V...',
-                'Truong Nguyen',
-                'https://via.placeholder.com/162',
-              ),
-
-              const SizedBox(height: 32),
-              const Text(
-                'Bảng xếp hạng',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildChartItem('Top 50', 'VIETNAM', Colors.deepOrange),
-                    _buildChartItem('HOT HITS', 'VIETNAM', Colors.pink),
-                    _buildChartItem('Global', 'TOP 50', Colors.green),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 100), // Space for MiniPlayer
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -140,7 +177,7 @@ class HomeScreen extends StatelessWidget {
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),
               bottomLeft: Radius.circular(4),
             ),
@@ -149,6 +186,12 @@ class HomeScreen extends StatelessWidget {
               width: 56,
               height: 56,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 56,
+                height: 56,
+                color: Colors.grey[800],
+                child: const Icon(Icons.music_note, color: Colors.white24),
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -181,6 +224,12 @@ class HomeScreen extends StatelessWidget {
               width: 64,
               height: 64,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 64,
+                height: 64,
+                color: Colors.grey[800],
+                child: const Icon(Icons.music_note, color: Colors.white24),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -195,10 +244,14 @@ class HomeScreen extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   artist,
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
