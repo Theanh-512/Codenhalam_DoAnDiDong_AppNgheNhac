@@ -63,30 +63,36 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget _buildHeader(BuildContext context, AuthProvider auth) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: Colors.green,
-            radius: 15,
-            child: Text(
-              auth.user?.username.substring(0, 1).toUpperCase() ?? '?',
-              style: const TextStyle(color: Colors.black, fontSize: 12),
-            ),
-          ),
-          const SizedBox(width: 8),
           const Text(
             'Thư viện',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1,
             ),
           ),
           const Spacer(),
-          const Icon(Icons.search, color: Colors.white, size: 28),
-          const SizedBox(width: 16),
-          const Icon(Icons.add, color: Colors.white, size: 28),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.search, color: Colors.white, size: 24),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.add, color: Colors.white, size: 24),
+          ),
         ],
       ),
     );
@@ -94,46 +100,112 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget _buildLoginPrompt(BuildContext context) {
     return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.library_music_outlined,
-                size: 64,
-                color: Colors.white24,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 240,
+                  height: 240,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.purple.withOpacity(0.2),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white12, width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.library_music_rounded,
+                    size: 80,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 48),
+            const Text(
+              'Thư viện của riêng bạn',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Thư viện của bạn ở đây',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Đăng nhập ngay để cá nhân hóa danh sách phát, lưu album yêu thích và nhận đề xuất nhạc phù hợp.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white60,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 48),
+            Container(
+              width: double.infinity,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.purple.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Đăng nhập để xem danh sách phát, nghệ sĩ và album đã lưu.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
+              child: ElevatedButton(
                 onPressed: () async {
                   await Navigator.pushNamed(context, '/login');
                   _fetchData();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-                child: const Text('Đăng nhập'),
+                child: const Text(
+                  'Đăng nhập',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/register'),
+              child: const Text(
+                'Bạn chưa có tài khoản? Đăng ký',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+            ),
+          ],
         ),
       ),
     );

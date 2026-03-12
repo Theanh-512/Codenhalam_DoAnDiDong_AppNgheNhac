@@ -1,0 +1,31 @@
+# .gitignore for Music App Project
+
+# .NET / C# (Backend)
+**/[Bb]in/
+**/[Oo]bj/
+*.user
+*.userosscache
+*.sln.doccache
+*.suo
+*.userprefs
+backend/appsettings.Development.json
+
+# Flutter / Dart (music_app)
+music_app/build/
+music_app/.dart_tool/
+music_app/.flutter-plugins
+music_app/.flutter-plugins-dependencies
+music_app/.pub-cache/
+music_app/.pub/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Miscellaneous
+build_errors.txt
+build_output.txt
+analyze_output.txt
