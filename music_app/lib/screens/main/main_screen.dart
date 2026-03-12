@@ -3,6 +3,7 @@ import '../home/home_screen.dart';
 import '../search/search_screen.dart';
 import '../favorites/favorite_songs_screen.dart';
 import '../upload/artist_upload_song_screen.dart';
+import '../profile/profile_screen.dart';
 import '../../widgets/mini_player.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     const SearchScreen(),
     const LibraryScreen(),
     const CreateScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -71,6 +73,10 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.add_box_outlined),
               label: 'Tạo',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Cá nhân',
             ),
           ],
         ),
